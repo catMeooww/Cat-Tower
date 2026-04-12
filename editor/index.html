@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat's Tower - Section Editor</title>
+    <link rel="shortcut icon" href="../assets/Cat_Black-1.png" type="image/png">
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-database.js"></script>
+    <script src="../server.js"></script>
+    <script src="../p5.dom.min.js"></script>
+    <script src="../p5.min.js"></script>
+    <script src="../p5.play.js"></script>
+    <script src="../game.js"></script>
+    <script src="editor.js"></script>
+    <style>
+        .ui{
+            position: fixed;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px outset white;
+            justify-self: center;
+        }
+
+        #editor {
+            display: flex;
+        }
+
+        #options {
+            display: block;
+            width: 20%;
+        }
+
+        #options button{
+            width: 100%;
+            color: aliceblue;
+            background-color: black;
+        }
+
+        #hotbar {
+            overflow-x: scroll;
+            width: 80%;
+        }
+
+        #hotbar img {
+            width: 50px;
+        }
+        #hotbar button{
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 8px;
+        }
+
+        #initialization{
+            width: 100%;
+            height: 100%;
+        }
+
+        #usersectors{
+            overflow-y: scroll;
+            height: 30%;
+        }
+        #usersectors div{
+            background-color: rgba(0, 0, 0, 0.1);
+            border: black 1px outset;
+            width: 90%;
+            justify-self: center;
+            padding: 2px;
+            margin: 2px;
+        }
+
+        #publisher{
+            visibility: hidden;
+            top:10%;
+            width: 80%;
+            height: 80%;
+        }
+    </style>
+</head>
+
+<body onload="startSector()">
+    <section class="ui" id="initialization">
+        <h1>Editor</h1>
+        <hr>
+        <p>Create New</p>
+        <button onclick="newSector()">Create</button>
+        <p>Load File</p>
+        <input type="file" onchange="loadSector(event)">
+        <hr>
+        <div id="usersectors">
+
+        </div>
+    </section>
+    <section class="ui" id="publisher">
+        <p>Publishing sector name:</p>
+        <input id="publishName">
+        <hr>
+        <button onclick="publishSector()">Publish</button>
+    </section>
+
+    <section id="canvas">
+
+    </section>
+    <section id="editor">
+        <div id="options">
+            <button class="login">Log-In</button>
+            <button onclick="playTest()">Play Test</button>
+            <button onclick="saveSector()">Save</button>
+            <button onclick="publishMenu()">Publish</button>
+        </div>
+        <div id="hotbar">
+            <button onclick="changeAction(0)"><img src="../assets/pickaxe.jpg"></button>
+            <button onclick="changeAction(1)"><img src="../assets/Planks.jpg"></button>
+            <button onclick="changeAction(2)"><img src="../assets/Grass.jpg"></button>
+            <button onclick="changeAction(3)"><img src="../assets/Stone.png"></button>
+            <button onclick="changeAction(4)"><img src="../assets/StringWall.png"></button>
+            <button onclick="changeAction(5)"><img src="../assets/StringWallFlipped.png"></button>
+        </div>
+    </section>
+</body>
+
+</html>

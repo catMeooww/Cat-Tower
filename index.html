@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat's Tower</title>
+    <link rel="shortcut icon" href="assets/Cat_Black-1.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-database.js"></script>
+    <script src="server.js"></script>
+</head>
+
+<body onload="mainUi()">
+    <section id="hostRoom" class="roominputs">
+        <div>
+            <button onclick="hostGame()" style="float: left;">X</button>
+            <label>Hosting as: <b class="login"></b></label>
+        </div>
+        <h3>Creating Room ID:</h3>
+        <input id="room-host" style="width: 90%;" placeholder="room-id">
+        <button onclick="toHost()" style="width: 90%;">HOST</button>
+        <p id="hosterror"></p>
+    </section>
+    <section id="joinRoom" class="roominputs">
+        <div>
+            <button onclick="joinGame()" style="float: left;">X</button>
+            <label>Playing as: <b class="login"></b></label>
+        </div>
+        <h3>Insert Room ID:</h3>
+        <input id="room-id" style="width: 90%;" placeholder="room-id">
+        <button onclick="toPlay()" style="width: 90%;">JOIN</button>
+        <p id="roomerror"></p>
+    </section>
+    <section class="main">
+        <div>
+            <h1 class="animated-text">Cat's Tower</h1>
+            <button onclick="joinGame()" class="animated-text">Play</button>
+            <button onclick="hostGame()" class="animated-text">host</button>
+        </div>
+    </section>
+    <section id="menu">
+        <button onclick="joinGame()">Play</button>
+        <button onclick="hostGame()">Host</button>
+        <button onclick="toEditor()">Create Sector</button>
+        <button onclick="toLogin()" class="login">Log-In</button>
+    </section>
+    <section class="info">
+        <h1>Welcome to Cat's Tower</h1>
+        <h2>Just a casual cat platform game</h2>
+        <hr>
+        <h3>Playing</h3>
+        <p>Join a room and play this game on computer using WASD.</p>
+        <hr>
+        <h3>Hosting</h3>
+        <p>Create a room to play in your tower!</p>
+        <hr>
+        <h3>Creating</h3>
+        <p>Create sections and customize your tower</p>
+    </section>
+</body>
+<script>
+    function mainUi() {
+        for (e = 0; e < document.getElementsByClassName("animated-text").length; e++) {
+            document.getElementsByClassName("animated-text").item(e).style.opacity = "100%";
+            if (e == 0) {
+                document.getElementsByClassName("animated-text").item(e).style.marginTop = "120px";
+            }
+        }
+        loadUserData();
+    }
+
+    function toLogin() {
+        window.location = "user.html";
+    }
+    function toEditor() {
+        window.location = "./editor/";
+    }
+    function toPlay() {
+        room = document.getElementById("room-id").value;
+        firebase.database().ref("/cattower/rooms/" + room + "/status").on("value", data => {
+            isRoomCreated = data.val();
+            if (isRoomCreated == "waiting") {
+                window.location = "./game/?" + room;
+            } else {
+                document.getElementById("roomerror").innerHTML = "Room not found!";
+            }
+        });
+    }
+    function toHost() {
+        room = document.getElementById("room-host").value;
+        firebase.database().ref("/cattower/rooms/" + room + "/status").on("value", data => {
+            isRoomCreated = data.val();
+            if (isRoomCreated == "waiting" || isRoomCreated == "playing") {
+                document.getElementById("hosterror").innerHTML = "Room already exists!";
+            } else {
+                firebase.database().ref("/cattower/rooms/" + room).update({
+                    host: user,
+                    status: "waiting"
+                });
+                window.location = "./game/?" + room;
+            }
+        });
+    }
+
+    function joinGame() {
+        if (logged) {
+            if (document.getElementById("joinRoom").style.visibility == "visible") {
+                document.getElementById("joinRoom").style.visibility = "hidden";
+            } else {
+                document.getElementById("joinRoom").style.visibility = "visible";
+            }
+        } else {
+            toLogin();
+        }
+    }
+    function hostGame() {
+        if (logged) {
+            if (document.getElementById("hostRoom").style.visibility == "visible") {
+                document.getElementById("hostRoom").style.visibility = "hidden";
+            } else {
+                document.getElementById("hostRoom").style.visibility = "visible";
+            }
+        } else {
+            toLogin();
+        }
+    }
+
+    function userLogged() {
+        for (e = 0; e < document.getElementsByClassName("login").length; e++) {
+            document.getElementsByClassName("login").item(e).innerHTML = user;
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat's Tower</title>
+    <link rel="shortcut icon" href="../assets/Cat_Black-1.png" type="image/png">
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-database.js"></script>
+    <script src="../server.js"></script>
+    <script src="../p5.dom.min.js"></script>
+    <script src="../p5.min.js"></script>
+    <script src="../p5.play.js"></script>
+    <script src="../game.js"></script>
+    <script src="play.js"></script>
+    <style>
+        .main {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            z-index: 10;
+        }
+
+        .main button {
+            color: black;
+        }
+
+        .ui {
+            position: fixed;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px outset white;
+            justify-self: center;
+            width: 80%;
+            height: 80%;
+            top:10%;
+            visibility: hidden;
+        }
+
+        .ui button{
+            width: 90%;
+            background-color: slateblue;
+            color: white;
+            margin: 5px;
+        }
+
+        #room_data section {
+            margin: 2px;
+            padding: 5px;
+            background-color: rgba(0, 128, 0, 0.9);
+        }
+
+        .adm_commands {
+            visibility: hidden;
+        }
+
+        .choosers {
+            display: flex;
+        }
+
+        #tab {
+            overflow-y: scroll;
+            height: 300px;
+        }
+
+        #playerList div {
+            display: inline-block;
+            background-color: rgba(0, 0, 255, 0.2);
+            border: solid 1px blue;
+            width: 49%;
+            transition: 1.5s;
+        }
+
+        #playerList div:hover {
+            background-color: rgba(255, 0, 100, 0.5);
+        }
+
+        #selected_sectors,
+        #selecting_sectors {
+            width: 50%;
+            display: block;
+            border-left: white 1px solid;
+            justify-items: center;
+        }
+
+        #sectorList {
+            display: flex;
+        }
+
+        #sectorList button {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: aliceblue;
+            border: aliceblue 1px outset;
+            width: 500px;
+            padding: 2px;
+            margin: 2px;
+            transition: 1.5s;
+        }
+
+        #sectorList button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-color: orange;
+        }
+
+        .slider button {
+            width: 50px;
+            color: blue;
+        }
+
+        .number-show {
+            background-color: black;
+        }
+    </style>
+</head>
+
+<body onload="roomData()">
+    <section class="main" id="room_data">
+        <h1 id="roomName"></h1>
+        <section class="adm_commands choosers">
+            <button onclick="changeTab(1)">Player List</button>
+            <button onclick="changeTab(2)">Configs</button>
+            <button onclick="changeTab(3)">Tower Sectors</button>
+        </section>
+        <section id="tab">
+            <section id='playerList'></section>
+        </section>
+        <section class="adm_commands">
+            <button onclick="startGame()">Play</button>
+        </section>
+    </section>
+    <section class="ui" id="pause">
+        <h2>Game Menu</h2>
+        <button onclick="pauseMenu()">Continue</button>
+        <button onclick="location = '../'">Leave</button>
+        <p id="pauseName"></p>
+    </section>
+    <section id="menu">
+        <button>Cat's Tower</button>
+        <button onclick="pauseMenu()">Pause</button>
+    </section>
+    <section id="canvas">
+
+    </section>
+</body>
+
+</html>

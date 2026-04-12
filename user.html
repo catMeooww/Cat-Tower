@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat's Tower</title>
+    <link rel="shortcut icon" href="../assets/Cat_Black-1.png" type="image/png">
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-database.js"></script>
+    <script src="server.js"></script>
+    <style>
+        #logindiv button,
+        #logindiv input {
+            background-color: black;
+            color: white;
+            width: 90%;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body onload="mainUi()">
+    <section id="menu">
+        <button onclick="toMain()">Back</button>
+    </section>
+    <section class="main" id="logindiv">
+        <h1 class="animated-text">Login</h1>
+        <section class="animated-text" id="logindiv">
+            <label>Username: </label>
+            <input id="login-username">
+            <label>Password: </label>
+            <input id="login-userpassword">
+            <section style="display: flex;">
+                <div>
+                    <button onclick="logAccount()">Log-In</button>
+                </div>
+                <div>
+                    <button onclick="createAccount()">Create Account</button>
+                </div>
+            </section>
+            <p id="login-error"></p>
+        </section>
+    </section>
+</body>
+<script>
+    function mainUi() {
+        for (e = 0; e < document.getElementsByClassName("animated-text").length; e++) {
+            document.getElementsByClassName("animated-text").item(e).style.opacity = "100%";
+            if (e == 0) {
+                document.getElementsByClassName("animated-text").item(e).style.marginTop = "120px";
+            }
+        }
+        loadUserData();
+    }
+
+    function userLogged(){
+        document.getElementById("logindiv").innerHTML = "<h2>Logged as: "+user+"</h2><button onclick='logout()'>Log-Out</button>";
+    }
+
+    function logAccount() {
+            userinput = document.getElementById("login-username").value;
+            passwordinput = document.getElementById("login-userpassword").value;
+            if (userinput != "" && passwordinput != "") {
+                var userref = firebase.database().ref("/cattower/users/" + userinput + "/status");
+                var passref = firebase.database().ref("/cattower/users/" + userinput + "/password");
+                var isUserCreated;
+                var isJoining = false;
+                userref.on("value", data => {
+                    isUserCreated = data.val();
+                    if (!isJoining) {
+                        isJoining = true;
+                        if (isUserCreated == "online" || isUserCreated == "mod") {
+                            passref.on("value", data => {
+                                canPass = data.val();
+                                if (canPass == passwordinput) {
+                                    localStorage.setItem("user", userinput);
+                                    localStorage.setItem("password", passwordinput);
+                                    location.reload();
+                                } else {
+                                    document.getElementById("login-error").innerHTML = "Incorrect Password";
+                                    document.getElementById("login-userpassword").style.borderColor = "red";
+                                }
+                            })
+                        } else if (isUserCreated == "disabled") {
+                            document.getElementById("login-error").innerHTML = "This account got disabled";
+                            document.getElementById("login-username").style.borderColor = "red";
+                        } else {
+                            document.getElementById("login-error").innerHTML = "Incorrect Username";
+                            document.getElementById("login-username").style.borderColor = "red";
+                        }
+                    }
+                });
+            } else {
+                document.getElementById("login-error").innerHTML = "All the inputs need a value";
+                document.getElementById("login-username").style.borderColor = "yellow";
+                document.getElementById("login-userpassword").style.borderColor = "yellow";
+            }
+        }
+
+        function createAccount() {
+            userinput = document.getElementById("login-username").value;
+            passwordinput = document.getElementById("login-userpassword").value;
+            if (userinput != "" && passwordinput != "") {
+                var userref = firebase.database().ref("/cattower/users/" + userinput + "/status");
+                var isUserCreated;
+                var isJoining = false;
+                userref.on("value", data => {
+                    isUserCreated = data.val();
+                    if (!isJoining) {
+                        isJoining = true;
+                        if (isUserCreated == null) {
+                            firebase.database().ref("/cattower/users/").child(userinput).update({
+                                password: passwordinput,
+                                status: "online"
+                            });
+                            document.getElementById("login-error").innerHTML = "Account Sucessfuly Created";
+                        } else {
+                            document.getElementById("login-error").innerHTML = "This username already exists";
+                            document.getElementById("login-username").style.borderColor = "red";
+                        }
+                    }
+                });
+            } else {
+                document.getElementById("login-error").innerHTML = "All the inputs need a value";
+                document.getElementById("login-username").style.borderColor = "yellow";
+                document.getElementById("login-userpassword").style.borderColor = "yellow";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("user");
+            localStorage.removeItem("password");
+            location.reload();
+        }
+
+    function toMain() {
+        window.location = "./";
+    }
+</script>
+
+</html>
