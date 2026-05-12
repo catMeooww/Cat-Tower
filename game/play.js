@@ -199,6 +199,11 @@ async function startGame() {
             }
         }
     }
+    finalSectors.push({
+        "source": "official",
+        "id": "top",
+        "name": "top"
+    })
     sectorsData = []
     for (sector of finalSectors) {
         if (sector["source"] == "official") {
@@ -236,6 +241,10 @@ async function runGame() {
     })
     firebase.database().ref("/cattower/rooms/" + room + "/players/").on('value', data => {
         onlinePlayers = data.val();
+    })
+    firebase.database().ref("/cattower/rooms/" + room + "/winner/").on('value', data => {
+        winner = data.val();
+        winnercolor = winner["color"]
     })
     document.getElementById("room_data").style.visibility = "hidden";
     for (e = 0; e < document.getElementsByClassName("adm_commands").length; e++) {

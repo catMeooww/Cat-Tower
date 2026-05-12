@@ -81,7 +81,7 @@
         room = document.getElementById("room-id").value;
         firebase.database().ref("/cattower/rooms/" + room + "/status").on("value", data => {
             isRoomCreated = data.val();
-            if (isRoomCreated == "waiting") {
+            if (isRoomCreated == "waiting" || isRoomCreated == "playing") {
                 window.location = "./game/?" + room;
             } else {
                 document.getElementById("roomerror").innerHTML = "Room not found!";

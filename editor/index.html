@@ -30,6 +30,8 @@
         #options {
             display: block;
             width: 20%;
+            overflow-y: scroll;
+            height: 90px;
         }
 
         #options button{
@@ -41,6 +43,7 @@
         #hotbar {
             overflow-x: scroll;
             width: 80%;
+            height: 90px;
         }
 
         #hotbar img {
@@ -103,8 +106,9 @@
     </section>
     <section id="editor">
         <div id="options">
-            <button class="login">Log-In</button>
+            <button class="login" onclick="window.open('../user.html','_blank')">Log-In</button>
             <button onclick="playTest()">Play Test</button>
+            <button>Configs</button>
             <button onclick="saveSector()">Save</button>
             <button onclick="publishMenu()">Publish</button>
         </div>

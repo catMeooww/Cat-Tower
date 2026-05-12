@@ -5,6 +5,7 @@ gameHeight = 500;
 gridX = 0;
 gridY = 0;
 hovering = null;
+winnercolor = "";
 
 playercat = "black";
 playerX = 650;
@@ -16,7 +17,9 @@ state = "air";
 function preload() {
     //bg
     bgImg = loadImage("../assets/bg.png")
+    flag_pole = loadImage("../assets/Flag.png");
     //player
+    flag_black = loadImage("../assets/Flag_Black.png");
     black_cat_1 = loadImage("../assets/Cat_Black-1.png");
     black_cat_2 = loadImage("../assets/Cat_Black-2.png");
     black_cat_3 = loadImage("../assets/Cat_Black-3.png");
@@ -70,6 +73,13 @@ function functionalBlock(block, type) {
                 velocityY = 0;
                 state = type;
             }
+        }
+    } else if(type=="flag"){
+        if (collision(playerX, playerY + velocityY, block["x"], block["y"])) {
+            if(winnercolor == ""){
+                firebase.database().ref("/cattower/rooms/" + room + "/winner/").update({player:user,color:playercat});
+            }
+            //endGame();
         }
     }
 }
@@ -144,6 +154,13 @@ function drawBlocks(sector,offsetX=0,offsetY=0){
         } else if (thisBlock["type"] == "stringwallf") {
             image(stringWallRight, thisBlock["x"], thisBlock["y"]);
             functionalBlock(thisBlock, "stringf");
+        } else if (thisBlock["type"] == "flag") {
+            if(winnercolor == "black"){
+                image(flag_black, thisBlock["x"], thisBlock["y"]);
+            }else{
+                image(flag_pole, thisBlock["x"], thisBlock["y"]);
+            }
+            functionalBlock(thisBlock,"flag",index);
         }
     });
 }
