@@ -7,6 +7,11 @@ gridY = 0;
 hovering = null;
 winnercolor = "";
 
+isMobile = /iPhone|Android|iPad/i.test(navigator.userAgent);
+mbtn_left = 20
+mbtn_right = 90
+mbtn_jump = gameWidth - 70
+
 playercat = "black";
 playerX = 650;
 playerY = 450;
@@ -14,10 +19,15 @@ velocityX = 0;
 velocityY = 0;
 state = "air";
 
+forcemovement = "none";
+
 function preload() {
-    //bg
+    //ui
     bgImg = loadImage("../assets/bg.png")
     flag_pole = loadImage("../assets/Flag.png");
+    arrowleft = loadImage("../assets/arrow_left.png");
+    arrowright = loadImage("../assets/arrow_right.png");
+    arrowup = loadImage("../assets/arrow_up.png");
     //player
     flag_black = loadImage("../assets/Flag_Black.png");
     black_cat_1 = loadImage("../assets/Cat_Black-1.png");
@@ -25,6 +35,12 @@ function preload() {
     black_cat_3 = loadImage("../assets/Cat_Black-3.png");
     black_cat_4 = loadImage("../assets/Cat_Black-4.png");
     black_cat_4f = loadImage("../assets/Cat_Black-4-flip.png");
+    flag_orange = loadImage("../assets/Flag_Orange.png");
+    orange_cat_1 = loadImage("../assets/Cat_Orange-1.png");
+    orange_cat_2 = loadImage("../assets/Cat_Orange-2.png");
+    orange_cat_3 = loadImage("../assets/Cat_Orange-3.png");
+    orange_cat_4 = loadImage("../assets/Cat_Orange-4.png");
+    orange_cat_4f = loadImage("../assets/Cat_Orange-4-flip.png");
     //blocks
     grassImg = loadImage("../assets/Grass.jpg");
     planksImg = loadImage("../assets/Planks.jpg");
@@ -34,16 +50,24 @@ function preload() {
 }
 function setup() {
     //fixing sizes
-    black_cat_1.resize(50,50);
-    black_cat_2.resize(50,50);
-    black_cat_3.resize(50,50);
-    black_cat_4.resize(50,50);
-    black_cat_4f.resize(50,50);
-    grassImg.resize(50,50);
-    planksImg.resize(50,50);
-    stoneImg.resize(50,50);
-    stringWallLeft.resize(50,50);
-    stringWallRight.resize(50,50);
+    arrowleft.resize(50,50);
+    arrowright.resize(50,50);
+    arrowup.resize(50,50);
+    black_cat_1.resize(50, 50);
+    black_cat_2.resize(50, 50);
+    black_cat_3.resize(50, 50);
+    black_cat_4.resize(50, 50);
+    black_cat_4f.resize(50, 50);
+    orange_cat_1.resize(50, 50);
+    orange_cat_2.resize(50, 50);
+    orange_cat_3.resize(50, 50);
+    orange_cat_4.resize(50, 50);
+    orange_cat_4f.resize(50, 50);
+    grassImg.resize(50, 50);
+    planksImg.resize(50, 50);
+    stoneImg.resize(50, 50);
+    stringWallLeft.resize(50, 50);
+    stringWallRight.resize(50, 50);
 
     canvas = createCanvas(gameWidth, 500);
     canvas.parent("canvas");
@@ -74,19 +98,29 @@ function functionalBlock(block, type) {
                 state = type;
             }
         }
-    } else if(type=="flag"){
+    } else if (type == "flag") {
         if (collision(playerX, playerY + velocityY, block["x"], block["y"])) {
-            if(winnercolor == ""){
-                firebase.database().ref("/cattower/rooms/" + room + "/winner/").update({player:user,color:playercat});
+            if (winnercolor == "") {
+                firebase.database().ref("/cattower/rooms/" + room + "/winner/").update({ player: user, color: playercat });
             }
-            //endGame();
+            endGame();
         }
     }
 }
 
 function drawPlayer(cat) {
     if (cat["color"] == "orange") {
-
+        if (cat["vx"] == 0 && cat["state"] == "ground") {
+            image(orange_cat_1, cat["x"], cat["y"] + 10);
+        } else if (cat["state"] == "ground") {
+            image(orange_cat_2, cat["x"], cat["y"] + 10);
+        } else if (cat["state"] == "string") {
+            image(orange_cat_4, cat["x"], cat["y"] + 10);
+        } else if (cat["state"] == "stringf") {
+            image(orange_cat_4f, cat["x"], cat["y"] + 10);
+        } else {
+            image(orange_cat_3, cat["x"], cat["y"] + 10);
+        }
     } else {
         if (cat["vx"] == 0 && cat["state"] == "ground") {
             image(black_cat_1, cat["x"], cat["y"] + 10);
@@ -102,38 +136,38 @@ function drawPlayer(cat) {
     }
 }
 
-function playerControls(){
-    if (keyDown("a") || keyDown("left")) {
-            velocityX = -5;
-        } else if (keyDown("d") || keyDown("right")) {
-            velocityX = 5;
-        } else {
-            if(velocityX > 0){
-                velocityX -= 0.5;
-            }else if(velocityX < 0){
-                velocityX += 0.5;
-            }
+function playerControls() {
+    if (keyDown("a") || keyDown("left") || forcemovement == "left") {
+        velocityX = -5;
+    } else if (keyDown("d") || keyDown("right") || forcemovement == "right") {
+        velocityX = 5;
+    } else {
+        if (velocityX > 0) {
+            velocityX -= 0.5;
+        } else if (velocityX < 0) {
+            velocityX += 0.5;
         }
-        velocityY += 0.8;
-        if (keyDown("w") || keyDown("up") || keyDown("space")) {
-            if (state == "ground") {
-                velocityY = -12;
-            } else if (state == "string") {
-                velocityY = -10;
-                velocityX = 10
-            } else if (state == "stringf") {
-                velocityY = -10;
-                velocityX = -10
-            }
+    }
+    velocityY += 0.8;
+    if (keyDown("w") || keyDown("up") || keyDown("space") || forcemovement == "up") {
+        if (state == "ground") {
+            velocityY = -12;
+        } else if (state == "string") {
+            velocityY = -10;
+            velocityX = 10
+        } else if (state == "stringf") {
+            velocityY = -10;
+            velocityX = -10
         }
+    }
 }
 
-function drawBlocks(sector,offsetX=0,offsetY=0){
+function drawBlocks(sector, offsetX = 0, offsetY = 0) {
     gridX = Math.floor((mouseX + (camera.x - gameWidth / 2)) / 50) * 50;
     gridY = Math.floor((mouseY + (camera.y + 20 - gameHeight / 2)) / 50) * 50;
     hovering = null;
     sector["blocks"].forEach((block, index) => {
-        thisBlock = {...block};
+        thisBlock = { ...block };
         thisBlock["x"] = thisBlock["x"] + offsetX;
         thisBlock["y"] = thisBlock["y"] + offsetY;
         if (gridX == thisBlock["x"] && gridY == thisBlock["y"]) {
@@ -155,12 +189,14 @@ function drawBlocks(sector,offsetX=0,offsetY=0){
             image(stringWallRight, thisBlock["x"], thisBlock["y"]);
             functionalBlock(thisBlock, "stringf");
         } else if (thisBlock["type"] == "flag") {
-            if(winnercolor == "black"){
+            if (winnercolor == "black") {
                 image(flag_black, thisBlock["x"], thisBlock["y"]);
-            }else{
+            } else if(winnercolor == "orange") {
+                image(flag_orange, thisBlock["x"], thisBlock["y"]);
+            } else {
                 image(flag_pole, thisBlock["x"], thisBlock["y"]);
             }
-            functionalBlock(thisBlock,"flag",index);
+            functionalBlock(thisBlock, "flag", index);
         }
     });
 }

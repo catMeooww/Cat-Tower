@@ -2,6 +2,7 @@ isReady = false;
 room = "";
 host = false;
 onlinePlayers = {};
+finalist = "";
 
 tab = "players";
 
@@ -68,24 +69,42 @@ function changeGenType() {
 
 function showRoomData() {
     if (tab == "players") {
+        document.getElementById("colorSelector").innerHTML = "<h3>Cat Colors</h3>";
+        for (thiscolor of ['black', 'orange']) {
+            thisclass = "buttonlist";
+            thiscall = "changeColor(`" + thiscolor + "`)";
+            if (thiscolor == playercat) {
+                thisclass += ' playerselection';
+            }
+            if (thiscolor == "orange") {
+                thisimg = "<img src='../assets/Cat_Orange-1.png'>";
+            } else {
+                thisimg = "<img src='../assets/Cat_Black-1.png'>";
+            }
+            document.getElementById("colorSelector").innerHTML += "<div onclick='" + thiscall + "' class='" + thisclass + "'><p>" + thiscolor + "</p>" + thisimg + "</div>";
+        }
         firebase.database().ref("/cattower/rooms/" + room + "/players").on('value', function (snapshot) {
-            document.getElementById("playerList").innerHTML = "";
+            document.getElementById("playerList").innerHTML = "<h3>Players</h3>";
             snapshot.forEach(function (childSnapshot) {
                 childKey = childSnapshot.key; childData = childSnapshot.val();
+                thisclass = "buttonlist";
+                if(childKey == user){
+                    thisclass += " playerselection";
+                }
                 if (childData["color"] == "orange") {
-                    //
+                    thisimg = "<img src='../assets/Cat_Orange-1.png'>";
                 } else {
                     thisimg = "<img src='../assets/Cat_Black-1.png'>";
                 }
-                document.getElementById("playerList").innerHTML += "<div><p>" + childKey + "</p>" + thisimg + "</div>";
+                document.getElementById("playerList").innerHTML += "<div class='"+thisclass+"'><p>" + childKey + "</p>" + thisimg + "</div>";
             });
         });
     } else if (tab == "configs") {
         document.getElementById("towerSizing").innerHTML = "<h3>Tower Height</h3>";
         document.getElementById("towerSizing").innerHTML += "<label>Fixed Size:</label>";
-        document.getElementById("towerSizing").innerHTML += "<section class='slider'><button onclick='addSize(-1)'><</button><button class='number-show'>" + floors + "</button><button onclick='addSize(1)'>></button></section>";
+        document.getElementById("towerSizing").innerHTML += "<div class='slider'><button onclick='addSize(-1)'><</button><button class='number-show'>" + floors + "</button><button onclick='addSize(1)'>></button></div>";
         document.getElementById("towerSizing").innerHTML += "<label>Ramdom Factor:</label>";
-        document.getElementById("towerSizing").innerHTML += "<section class='slider'><button onclick='addRamdom(-1)'><</button><button class='number-show'>" + ramdomness + "</button><button onclick='addRamdom(1)'>></button></section>";
+        document.getElementById("towerSizing").innerHTML += "<div class='slider'><button onclick='addRamdom(-1)'><</button><button class='number-show'>" + ramdomness + "</button><button onclick='addRamdom(1)'>></button></div>";
         document.getElementById("towerGeneration").innerHTML = "<h3>Generation Method</h3>";
         document.getElementById("towerGeneration").innerHTML += "<button onclick='changeGenType()'>" + generationType + "</button>";
     } else if (tab == "sectors") {
@@ -130,6 +149,11 @@ function roomData() {
                 showRoomData();
             } else if (isRoomCreated == "playing") {
                 runGame();
+                firebase.database().ref("/cattower/rooms/" + room + "/host").once('value', data => {
+                    if (data.val() == user) {
+                        host = true;
+                    }
+                })
             } else {
                 window.location = "../";
             }
@@ -155,17 +179,17 @@ function userLogged() {
 function changeTab(t) {
     switch (t) {
         case 1:
-            document.getElementById("tab").innerHTML = "<section id='playerList'></section>";
+            document.getElementById("tab").innerHTML = "<section id='playerList'></section><section id='colorSelector'></section>";
             tab = "players";
             break;
         case 2:
-            document.getElementById("tab").innerHTML = "<section id='towerSizing'></section><section id='towerGeneration'></section>";
+            document.getElementById("tab").innerHTML = "<section id='towerConfig'><div id='towerSizing'></div><div id='towerGeneration'></div></section><section id='playersConfig'></section>";
             tab = "configs";
             break;
         case 3:
             selectedDiv = "<section id='selected_sectors'></section>";
-            selectingDiv = "<section id='selecting_sectors'><section id='official_sectors'></section><section id='public_sectors'></section></section>";
-            document.getElementById("tab").innerHTML = "<section id='sectorList'>" + selectedDiv + selectingDiv + "</section>";
+            selectingDiv = "<section id='selecting_sectors'><div id='official_sectors'></div><div id='public_sectors'></div></section>";
+            document.getElementById("tab").innerHTML = selectedDiv + selectingDiv;
             tab = "sectors";
             break;
     }
@@ -239,12 +263,18 @@ async function runGame() {
     await firebase.database().ref("/cattower/rooms/" + room + "/level/").once('value', data => {
         towerData = data.val();
     })
+    firebase.database().ref("/cattower/rooms/" + room + "/status/").on('value', data => {
+        if (data.val() == "waiting") {
+            location.reload();
+        }
+    })
     firebase.database().ref("/cattower/rooms/" + room + "/players/").on('value', data => {
         onlinePlayers = data.val();
     })
     firebase.database().ref("/cattower/rooms/" + room + "/winner/").on('value', data => {
         winner = data.val();
-        winnercolor = winner["color"]
+        finalist = winner["player"];
+        winnercolor = winner["color"];
     })
     document.getElementById("room_data").style.visibility = "hidden";
     for (e = 0; e < document.getElementsByClassName("adm_commands").length; e++) {
@@ -259,6 +289,21 @@ function draw() {
         //controls
         camera.x = playerX;
         camera.y = playerY;
+
+        if (isMobile) {
+            if (touches.length > 0) {
+                if (touches[0].x > mbtn_left && touches[0].x < mbtn_left + 50) {
+                    forcemovement = "left";
+                } else if (touches[0].x > mbtn_right && touches[0].x < mbtn_right + 50) {
+                    forcemovement = "right";
+                } else if (touches[0].x > mbtn_jump && touches[0].x < mbtn_jump + 50) {
+                    forcemovement = "up";
+                } else {
+                    forcemovement = "none";
+                }
+            }
+        }
+
         playerControls();
 
         //ground
@@ -312,7 +357,21 @@ function draw() {
                 })
             }
         }
+
+        if (isMobile) {
+            image(arrowleft, camera.x - gameWidth / 2 + mbtn_left, camera.y + gameHeight / 2 - 150);
+            image(arrowright, camera.x - gameWidth / 2 + mbtn_right, camera.y + gameHeight / 2 - 150);
+            image(arrowup, camera.x - gameWidth / 2 + mbtn_jump, camera.y + gameHeight / 2 - 150);
+        }
     }
+}
+
+function changeColor(color){
+    playercat = color;
+    firebase.database().ref("/cattower/rooms/" + room + "/players/" + user).update({
+        color: playercat
+    });
+    showRoomData();
 }
 
 function pauseMenu() {
@@ -322,4 +381,23 @@ function pauseMenu() {
         document.getElementById("pause").style.visibility = "visible";
         document.getElementById("pauseName").innerHTML = user;
     }
+}
+
+function endGame() {
+    isReady = false;
+    document.getElementById("final").style.visibility = "visible";
+    document.getElementById("winnerDiv").innerHTML = "<h1>" + finalist + " is the Winner!</h1>";
+    document.getElementById("winnerDiv").style.backgroundColor = winnercolor;
+    document.getElementById("finalOptions").innerHTML = "<button onclick='location.reload()'>Respawn</button>";
+    if (host) {
+        document.getElementById("finalOptions").innerHTML += "<button onclick='resetRoom()'>RESET</button>";
+    }
+}
+
+function resetRoom() {
+    firebase.database().ref("/cattower/rooms/" + room).update({
+        status: "waiting",
+        winner: null,
+        level: null
+    });
 }

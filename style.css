@@ -61,7 +61,7 @@ body{
 
 button:hover{
     border-color: orange;
-    color: white;
+    color: white !important;
     cursor: pointer;
 }
 

@@ -34,11 +34,11 @@
             justify-self: center;
             width: 80%;
             height: 80%;
-            top:10%;
+            top: 10%;
             visibility: hidden;
         }
 
-        .ui button{
+        .ui button {
             width: 90%;
             background-color: slateblue;
             color: white;
@@ -62,45 +62,55 @@
         #tab {
             overflow-y: scroll;
             height: 300px;
+            display: flex;
         }
 
-        #playerList div {
+        #tab section {
+            width: 50%;
+            display: block;
+            justify-items: center;
+        }
+
+        .buttonlist {
             display: inline-block;
             background-color: rgba(0, 0, 255, 0.2);
             border: solid 1px blue;
-            width: 49%;
             transition: 1.5s;
+            width: 30% !important;
+            margin: 2px;
         }
 
         #playerList div:hover {
             background-color: rgba(255, 0, 100, 0.5);
         }
 
-        #selected_sectors,
-        #selecting_sectors {
-            width: 50%;
-            display: block;
-            border-left: white 1px solid;
-            justify-items: center;
+        #colorSelector div:hover {
+            background-color: rgba(0, 255, 100, 0.5);
         }
 
-        #sectorList {
-            display: flex;
+        .playerselection {
+            border-color: lime !important;
         }
 
-        #sectorList button {
+        #selected_sectors button,
+        #selecting_sectors button {
             background-color: rgba(0, 0, 0, 0.6);
             color: aliceblue;
             border: aliceblue 1px outset;
-            width: 500px;
+            width: 400px;
             padding: 2px;
             margin: 2px;
             transition: 1.5s;
         }
 
-        #sectorList button:hover {
+        #selected_sectors button:hover,
+        #selecting_sectors button:hover {
             background-color: rgba(0, 0, 0, 0.8);
             border-color: orange;
+        }
+
+        .slider {
+            justify-self: center;
         }
 
         .slider button {
@@ -123,11 +133,17 @@
             <button onclick="changeTab(3)">Tower Sectors</button>
         </section>
         <section id="tab">
-            <section id='playerList'></section>
+            <section id='playerList'>Cats Are Waking From Their Nap...</section>
+            <section id='colorSelector'></section>
         </section>
         <section class="adm_commands">
             <button onclick="startGame()">Play</button>
         </section>
+    </section>
+    <section class="ui" id="final">
+        <h1>You reached the Top!</h1>
+        <div id="winnerDiv"></div>
+        <div id="finalOptions"></div>
     </section>
     <section class="ui" id="pause">
         <h2>Game Menu</h2>

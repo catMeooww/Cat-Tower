@@ -72,11 +72,34 @@
             margin: 2px;
         }
 
-        #publisher{
+        #publisher, #configs{
             visibility: hidden;
             top:10%;
             width: 80%;
             height: 80%;
+        }
+
+        .ui input{
+            width: 80%;
+            background-color: darkslateblue;
+            padding: 2px;
+            border: 1px aliceblue solid;
+            color: white;
+        }
+
+        .ui button{
+            width: 80%;
+            background-color: slateblue;
+            padding: 2px;
+            border: 1px aliceblue solid;
+            color: antiquewhite;
+        }
+
+        .closemenu{
+            width: 30px !important;
+            height: 30px;
+            float: left;
+            color: red;
         }
     </style>
 </head>
@@ -95,10 +118,19 @@
         </div>
     </section>
     <section class="ui" id="publisher">
+        <button class="closemenu" onclick="publishMenu()">X</button>
         <p>Publishing sector name:</p>
         <input id="publishName">
+        <p id="publishOutput">Sector will be available in Sector Selector when hosting.</p>
         <hr>
         <button onclick="publishSector()">Publish</button>
+    </section>
+    <section class="ui" id="configs">
+        <button class="closemenu" onclick="configMenu()">X</button>
+        <p>Background:</p>
+        <input type="color" id="configBg" value="gray">
+        <hr>
+        <button onclick="updateConfigs()">Update</button>
     </section>
 
     <section id="canvas">
@@ -108,7 +140,7 @@
         <div id="options">
             <button class="login" onclick="window.open('../user.html','_blank')">Log-In</button>
             <button onclick="playTest()">Play Test</button>
-            <button>Configs</button>
+            <button onclick="configMenu()">Configs</button>
             <button onclick="saveSector()">Save</button>
             <button onclick="publishMenu()">Publish</button>
         </div>

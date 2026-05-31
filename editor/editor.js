@@ -3,6 +3,8 @@ sectorData = {
     "blocks": [{ "type": "planks", "x": 550, "y": 450 }, { "type": "planks", "x": 500, "y": 450 }, { "type": "planks", "x": 450, "y": 450 }, { "type": "planks", "x": 400, "y": 450 }, { "type": "planks", "x": 350, "y": 450 }, { "type": "planks", "x": 300, "y": 450 }, { "type": "planks", "x": 750, "y": 450 }, { "type": "planks", "x": 800, "y": 450 }, { "type": "planks", "x": 850, "y": 450 }, { "type": "planks", "x": 950, "y": 450 }, { "type": "planks", "x": 900, "y": 450 }, { "type": "planks", "x": 1000, "y": 450 }, { "type": "planks", "x": 300, "y": 0 }, { "type": "planks", "x": 350, "y": 0 }, { "type": "planks", "x": 400, "y": 0 }, { "type": "planks", "x": 450, "y": 0 }, { "type": "planks", "x": 500, "y": 0 }, { "type": "planks", "x": 550, "y": 0 }, { "type": "planks", "x": 750, "y": 0 }, { "type": "planks", "x": 800, "y": 0 }, { "type": "planks", "x": 850, "y": 0 }, { "type": "planks", "x": 900, "y": 0 }, { "type": "planks", "x": 950, "y": 0 }, { "type": "planks", "x": 1000, "y": 0 }, { "type": "planks", "x": 1000, "y": 50 }, { "type": "planks", "x": 1000, "y": 100 }, { "type": "planks", "x": 1000, "y": 150 }, { "type": "planks", "x": 1000, "y": 200 }, { "type": "planks", "x": 1000, "y": 250 }, { "type": "planks", "x": 1000, "y": 300 }, { "type": "planks", "x": 1000, "y": 350 }, { "type": "planks", "x": 1000, "y": 400 }, { "type": "planks", "x": 300, "y": 400 }, { "type": "planks", "x": 300, "y": 350 }, { "type": "planks", "x": 300, "y": 300 }, { "type": "planks", "x": 300, "y": 250 }, { "type": "planks", "x": 300, "y": 200 }, { "type": "planks", "x": 300, "y": 150 }, { "type": "planks", "x": 300, "y": 100 }, { "type": "planks", "x": 300, "y": 50 }, { "type": "stringwall", "x": 600, "y": 0 }, { "type": "stringwallf", "x": 700, "y": 0 }]
 };
 
+var isMobile = /iPhone|Android|iPad/i.test(navigator.userAgent);
+
 action = "planks";
 isTestisng = false;
 
@@ -41,6 +43,9 @@ function newSector() {
 }
 
 function startSector() {
+    if (isMobile) {
+        document.getElementById("initialization").innerHTML = "EDITOR DOES NOT SUPPORT MOBILE";
+    }
     loadUserData();
 }
 
@@ -55,7 +60,7 @@ function draw() {
     }
     //show
     state = "air";
-    if(playerY>=500){
+    if (playerY >= 500) {
         velocityY = -15;
     }
     drawBlocks(sectorData);
@@ -74,8 +79,8 @@ function draw() {
         rect(gridX, gridY, 50, 50);
     }
     //indicators
-    text("X:"+gridX+", Y:"+gridY,50,50);
-    drawPlayer({"x":playerX,"y":playerY,"vx":velocityX,"vy":velocityY,"state":state,"color":playercat});
+    text("X:" + gridX + ", Y:" + gridY, 50, 50);
+    drawPlayer({ "x": playerX, "y": playerY, "vx": velocityX, "vy": velocityY, "state": state, "color": playercat });
     stroke("red");
     line(600, 499, 750, 499);
     stroke("blue");
@@ -138,6 +143,20 @@ function saveSector() {
     document.body.removeChild(downloader);
 }
 
+function configMenu() {
+    if (document.getElementById("configs").style.visibility == "visible") {
+        document.getElementById("configs").style.visibility = "hidden";
+        menuClose();
+    } else {
+        document.getElementById("configs").style.visibility = "visible";
+        menuOpen = true;
+    }
+}
+
+function updateConfigs(){
+    sectorData["background"] = document.getElementById("configBg").value;
+}
+
 function publishMenu() {
     if (logged) {
         if (document.getElementById("publisher").style.visibility == "visible") {
@@ -162,6 +181,8 @@ function publishSector() {
             content: sectorData
         });
         publishMenu();
+    }else{
+        document.getElementById("publishOutput").innerHTML = "Sector must have name";
     }
 }
 
