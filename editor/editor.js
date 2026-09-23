@@ -125,6 +125,10 @@ function changeAction(n) {
         action = "stringwall";
     } else if (n == 5) {
         action = "stringwallf";
+    } else if (n == 6) {
+        action = "conveyor";
+    } else if (n == 7) {
+        action = "conveyorf";
     }
 }
 

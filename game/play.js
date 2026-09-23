@@ -7,7 +7,7 @@ finalist = "";
 tab = "players";
 
 //host options
-officialSectors = ["level 1", "level 2"]
+officialSectors = ["level 1", "level 2", "level 3"]
 selectedSectors = [{ "source": "official", "id": "level_1", "name": "level 1" }, { "source": "official", "id": "level_2", "name": "level 2" }];
 floors = 5;
 ramdomness = 1;
@@ -289,20 +289,6 @@ function draw() {
         //controls
         camera.x = playerX;
         camera.y = playerY;
-
-        if (isMobile) {
-            if (touches.length > 0) {
-                if (touches[0].x > mbtn_left && touches[0].x < mbtn_left + 50) {
-                    forcemovement = "left";
-                } else if (touches[0].x > mbtn_right && touches[0].x < mbtn_right + 50) {
-                    forcemovement = "right";
-                } else if (touches[0].x > mbtn_jump && touches[0].x < mbtn_jump + 50) {
-                    forcemovement = "up";
-                } else {
-                    forcemovement = "none";
-                }
-            }
-        }
 
         playerControls();
 

@@ -8,9 +8,10 @@ hovering = null;
 winnercolor = "";
 
 isMobile = /iPhone|Android|iPad/i.test(navigator.userAgent);
-mbtn_left = 20
-mbtn_right = 90
-mbtn_jump = gameWidth - 70
+var touch = [];
+mbtn_left = 20;
+mbtn_right = 90;
+mbtn_jump = gameWidth - 70;
 
 playercat = "black";
 playerX = 650;
@@ -47,12 +48,14 @@ function preload() {
     stoneImg = loadImage("../assets/Stone.png");
     stringWallLeft = loadImage("../assets/StringWall.png");
     stringWallRight = loadImage("../assets/StringWallFlipped.png");
+    conveyorLeft = loadImage("../assets/Conveyor.jpg");
+    conveyorRight = loadImage("../assets/ConveyorFlipped.jpg");
 }
 function setup() {
     //fixing sizes
-    arrowleft.resize(50,50);
-    arrowright.resize(50,50);
-    arrowup.resize(50,50);
+    arrowleft.resize(50, 50);
+    arrowright.resize(50, 50);
+    arrowup.resize(50, 50);
     black_cat_1.resize(50, 50);
     black_cat_2.resize(50, 50);
     black_cat_3.resize(50, 50);
@@ -68,6 +71,8 @@ function setup() {
     stoneImg.resize(50, 50);
     stringWallLeft.resize(50, 50);
     stringWallRight.resize(50, 50);
+    conveyorLeft.resize(50, 50);
+    conveyorRight.resize(50, 50);
 
     canvas = createCanvas(gameWidth, 500);
     canvas.parent("canvas");
@@ -97,6 +102,14 @@ function functionalBlock(block, type) {
                 velocityY = 0;
                 state = type;
             }
+        }
+    } else if (type == "conveyor") {
+        if (collision(playerX, playerY + velocityY, block["x"], block["y"])) {
+            forcemovement = "left";
+        }
+    } else if (type == "conveyorf") {
+        if (collision(playerX, playerY + velocityY, block["x"], block["y"])) {
+            forcemovement = "right";
         }
     } else if (type == "flag") {
         if (collision(playerX, playerY + velocityY, block["x"], block["y"])) {
@@ -137,9 +150,9 @@ function drawPlayer(cat) {
 }
 
 function playerControls() {
-    if (keyDown("a") || keyDown("left") || forcemovement == "left") {
+    if (keyDown("a") || keyDown("left") || forcemovement == "left" || getTouch("left")) {
         velocityX = -5;
-    } else if (keyDown("d") || keyDown("right") || forcemovement == "right") {
+    } else if (keyDown("d") || keyDown("right") || forcemovement == "right" || getTouch("right")) {
         velocityX = 5;
     } else {
         if (velocityX > 0) {
@@ -149,7 +162,7 @@ function playerControls() {
         }
     }
     velocityY += 0.8;
-    if (keyDown("w") || keyDown("up") || keyDown("space") || forcemovement == "up") {
+    if (keyDown("w") || keyDown("up") || keyDown("space") || forcemovement == "up" || getTouch("up")) {
         if (state == "ground") {
             velocityY = -12;
         } else if (state == "string") {
@@ -160,6 +173,7 @@ function playerControls() {
             velocityX = -10
         }
     }
+    forcemovement = "none";
 }
 
 function drawBlocks(sector, offsetX = 0, offsetY = 0) {
@@ -188,10 +202,18 @@ function drawBlocks(sector, offsetX = 0, offsetY = 0) {
         } else if (thisBlock["type"] == "stringwallf") {
             image(stringWallRight, thisBlock["x"], thisBlock["y"]);
             functionalBlock(thisBlock, "stringf");
+        } else if (thisBlock["type"] == "conveyor") {
+            image(conveyorLeft, thisBlock["x"], thisBlock["y"]);
+            functionalBlock(thisBlock, "conveyor");
+            solidBlock(thisBlock);
+        } else if (thisBlock["type"] == "conveyorf") {
+            image(conveyorRight, thisBlock["x"], thisBlock["y"]);
+            functionalBlock(thisBlock, "conveyorf");
+            solidBlock(thisBlock);
         } else if (thisBlock["type"] == "flag") {
             if (winnercolor == "black") {
                 image(flag_black, thisBlock["x"], thisBlock["y"]);
-            } else if(winnercolor == "orange") {
+            } else if (winnercolor == "orange") {
                 image(flag_orange, thisBlock["x"], thisBlock["y"]);
             } else {
                 image(flag_pole, thisBlock["x"], thisBlock["y"]);
@@ -200,3 +222,31 @@ function drawBlocks(sector, offsetX = 0, offsetY = 0) {
         }
     });
 }
+
+function getTouch(btn) {
+    if (touch[0]) {
+        if (btn == "left" &&
+            touch[0] > mbtn_left && touch[0] < mbtn_left + 50) {
+            return true;
+        } else if (btn == "right" &&
+            touch[0] > mbtn_right && touch[0] < mbtn_right + 50) {
+            return true;
+        } else if (btn == "up" &&
+            touch[0] > mbtn_jump && touch[0] < mbtn_jump + 50) {
+            return true;
+        }
+    }
+    return false;
+}
+
+document.addEventListener("pointerdown", (e) => {
+    touch = [e.clientX, e.clientY];
+});
+
+document.addEventListener("pointerup", (e) => {
+    touch = [];
+});
+
+document.addEventListener("pointercancel", (e) => {
+    touch = [];
+});
